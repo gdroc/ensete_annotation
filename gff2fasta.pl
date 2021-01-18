@@ -21,7 +21,7 @@ my %conversion = (
 
 my $help        = "";
 my $gff         = "";
-my $prefix      = "";
+my $prefix      = "ensete_glaucum";
 my $fasta       = "";
 my $dir         = cwd();
 my $verbose     = 0;
@@ -34,17 +34,14 @@ my $usage = $FindBin::Bin ."/". $FindBin::Script.q/ --help
 Parameters  
     --gff        gff3 file  [required] 
     --fasta      fasta file [required]
-    --prefix     prefix for output file
-    --dir        output directory (Default current directory) 
+    --prefix     prefix for output file 
     --verbose    
     --help       show this help and exit
 /;
 GetOptions(
     'gff=s'    => \$gff,
     'fasta=s'  => \$fasta,
-    'prefix=s' => \$prefix,
-    'dir=s'    => \$dir,
-    'get_by_name' => \$get_by_name,
+    'prefix=s' => \$prefix, 
     'verbose'  => \$verbose,    
     'help|h|?' => \$help
 )  or pod2usage(-message => $usage);
@@ -64,19 +61,13 @@ if ($fasta eq "") {
 
  
 my $logfile = $dir ."/gff2fasta.log";
-open(LOG,">logfile"); 
-
-sub print {
-    my $cmd = shift;
-    print LOG $cmd;
-    print $cmd  if $verbose; 
-}
+open(LOG,">$logfile"); 
 
 my $output_gene    = $dir."/".$prefix ."_gene.fna";
 my $output_cds     = $dir."/".$prefix ."_cds.fna";
 my $output_cdna    = $dir."/".$prefix ."_cdna.fna";
 my $output_protein = $dir."/".$prefix ."_protein.faa";
-my $output_gff3     = $dir."/".$prefix .".gff3";
+my $output_gff3    = $dir."/".$prefix .".gff3";
 
 
 # Input file
@@ -86,10 +77,6 @@ my $fasta_in = new Bio::SeqIO(
 );
 my $gff_in = new Bio::Tools::GFF(
 	-file => $gff,
-	-gff_version => 3
-); 
-my $gff_out = new Bio::Tools::GFF(
-	-file => ">$output_gff3",
 	-gff_version => 3
 ); 
 # Output file
@@ -115,6 +102,10 @@ my $protein_out = new Bio::SeqIO(
 	-file => ">$output_protein",
 	-format => 'fasta'
 );
+my $gff_out = new Bio::Tools::GFF(
+	-file => ">$output_gff3",
+	-gff_version => 3
+); 
 
 # Read FASTA
  
@@ -159,7 +150,7 @@ while(my $feature = $gff_in->next_feature) {
 	}
 } 
 $gff_in->close; 
-# Write Fasta
+&print("# Write fasta file\n");
 my $cpt_gene    = 0;
 my $cpt_cds     = 0;
 my $start_codon = 0;
@@ -292,7 +283,21 @@ $gene_out->close;
 $cds_out->close;
 $cdna_out->close;
 $protein_out->close;
+&print("Output file:\n");
+&print("- $output_gene\n");
+&print("- $output_cds\n");
+&print("- $output_cdna\n");
+&print("- $output_protein\n");
+&print("- $output_gff3\n\n");
 &print("Number of gene(s) : ". $cpt_gene ."\n");
 &print("Number of transcript : " . $cpt_cds ." (with ATG ". $start_codon ."; with stop_codon ". $stop_codon .")\n"); 
+
+ 
+
+sub print {
+    my $cmd = shift;
+    print LOG $cmd;
+    print $cmd  if $verbose; 
+}
 
  

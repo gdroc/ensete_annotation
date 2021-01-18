@@ -19,7 +19,7 @@ Functional annotation (tab file)
 wget https://banana-genome-hub.southgreen.fr/filebrowser/download/672 -O ensete_glaucum_product.txt
 wget https://banana-genome-hub.southgreen.fr/filebrowser/download/671 -O ensete_glaucum_evm_ipr.txt
 wget https://banana-genome-hub.southgreen.fr/filebrowser/download/673 -O ensete_glaucum_evm_go.txt
-wget https://banana-genome-hub.southgreen.fr/filebrowser/download/674 -O interpro.tar.gz
+wget https://banana-genome-hub.southgreen.fr/filebrowser/download/675 -O interpro.tar.gz
 ```
 
 ## gff2fasta.pl
