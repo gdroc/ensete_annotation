@@ -1,6 +1,50 @@
-qsub -b y -q normal.q -N rename perl bin/gff2fasta.pl --fasta /gs7k1/projects/HUBs/banana/Reference_genomes_assemblies/Ensete_glaucum_1.0/ensete_glaucum.assembly.fna --gff /work/droc/ensete/EVM_gff1.all.gff --prefix ensete_glaucum --dir $PWD --verbose
+
+## Download dataset
+
+Assembly (FASTA file)
+> wget https://banana-genome-hub.southgreen.fr/filebrowser/download/430 -O ensete_glaucum.assembly.fna
+
+Structural annotation provide by EVM (GFF3 file)
+
+> wget https://banana-genome-hub.southgreen.fr/filebrowser/download/670 -O EVM.gff
+
+Functional annotation (tab file)
+> wget https://banana-genome-hub.southgreen.fr/filebrowser/download/672 -O ensete_glaucum_product.txt
+> wget https://banana-genome-hub.southgreen.fr/filebrowser/download/671 -O ensete_glaucum_evm_ipr.txt
+> wget https://banana-genome-hub.southgreen.fr/filebrowser/download/673 -O ensete_glaucum_evm_go.txt
+> wget https://banana-genome-hub.southgreen.fr/filebrowser/download/674 -O interpro.tar.gz
+
+## gff2fasta.pl
+
+Convert EvidenceModeler output to fasta for each gene model and rename ID according to the order of appearance in the assembly  
+> perl gff2fasta.pl --fasta ensete_glaucum.assembly.fna --gff EVM.gff  --verbose
+
+Produce the following file :
+ - ensete_glaucum_gene.fna 
+ - ensete_glaucum_cds.fna
+ - ensete_glaucum_cdna.fna 
+ - ensete_glaucum_protein.faa
+ - ensete_glaucum.gff3
+
+## Parse interproscan result
+
+> tar -xzf interpro.tar.gz
+> perl cnv_interpro.pl --result interpro --prefix ensete_glaucum
+
+## Run ncbi-blast
+
+blast_SwissProt.out
+blast_TrEMBL.out
+blast_MUSAC.out
 
 
-qsub -b y -q normal.q -N test perl bin/cnv_blast.pl --blast /work/droc/ensete/blast_SwissProt.out --blast /work/droc/ensete/blast_TrEMBL.out --blast /work/droc/ensete/blast_DHPahang.out --prefix ensete_glaucum --dir $PWD
+## cnv_blast.pl
+
+Parse multiple Blastp and choose the best product for each gene
+
+> perl cnv_blast.pl --blast blast_SwissProt.out --blast blast_TrEMBL.out --blast blast_MUSAC.out --output ensete_glaucum_product.txt
 
 
+## add_functional_annotation2gff3.pl
+
+> perl add_functional_annotation2gff3.pl -product ensete_glaucum_product.txt -go_file ensete_glaucum_evm_go.txt -interpro_file ensete_glaucum_evm_ipr.txt -gff3_file ensete_glaucum.gff3 -prefix ensete_glaucum
